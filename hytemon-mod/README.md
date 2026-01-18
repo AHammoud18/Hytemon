@@ -18,9 +18,11 @@ The implementation is intentionally lightweight so you can connect it to Hytaleâ
 - `CaptureManager` exposes `attemptCapture(...)` and `throwCaptureItem(...)`.
   - `attemptCapture` supports catching **animals** and **monsters**.
   - Monster targets can trigger battles before capture.
+  - Capture items apply a basic multiplier (Pokeball vs Greatball vs Ultraball).
 
 ### Battle flow
 - `BattleManager` creates/clears `BattleEncounter` data.
+  - `BattleState` tracks phases, queued actions, and turn numbers.
   - It is designed to be extended with turn order, moves, effects, and UI.
 
 ### Trader NPC
@@ -42,6 +44,9 @@ The `throwCaptureItem(...)` method in `CaptureManager` is a stub. The recommende
 
 This keeps the capture logic server-authoritative while still allowing client-side animation and feedback.
 
+The helper `buildThrowProfile(...)` method provides projectile IDs and tuning values so you can
+map item throws to projectile asset definitions in the Interaction graph.
+
 ## Wiring the Battle System
 `BattleManager` currently stores a `BattleEncounter`. Extend it to:
 
@@ -50,6 +55,8 @@ This keeps the capture logic server-authoritative while still allowing client-si
 - Track turn order, moves, status effects, and rewards.
 
 A recommended model is to create an **EncounterState** component for each participant and tick it with a system.
+The `BattleState` class is already structured to track phase transitions (`INTRO`, `PLAYER_COMMAND`,
+`OPPONENT_COMMAND`, `RESOLVE_TURN`) and to queue battle actions.
 
 ## Trader NPC Setup
 The command spawns an NPC role called `Hytemon:Trader`. You must create that NPC role asset (via the NPC Editor or a JSON asset) and wire it to open the shop.
@@ -67,6 +74,17 @@ assets/Server/Adventure/Shops/HytemonTraderShop.json
 ```
 
 You can extend it with additional `ShopElement` entries for potions, better balls, and revives.
+
+## Assets You Need to Provide
+To fully test the mod in-game, add the following assets to your pack:
+
+- Item definitions + models/textures for:
+  - `Hytemon:Pokeball`, `Hytemon:Greatball`, `Hytemon:Ultraball`
+  - `Hytemon:Potion`, `Hytemon:SuperPotion`, `Hytemon:Revive`
+- Optional projectile assets for throws:
+  - `Hytemon:PokeballProjectile`, `Hytemon:GreatballProjectile`, `Hytemon:UltraballProjectile`
+- Item icons referenced by the shop:
+  - `Icons/Items/Hytemon/Pokeball.png`, `Icons/Items/Hytemon/Potion.png`
 
 ## Installing the Mod in Hytale
 1. **Package the mod** into a jar containing the `hytemon-mod/src/main/java` classes.

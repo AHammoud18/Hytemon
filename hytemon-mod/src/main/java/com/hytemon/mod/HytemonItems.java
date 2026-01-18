@@ -7,6 +7,9 @@ public final class HytemonItems {
   public static final String POTION = "Hytemon:Potion";
   public static final String SUPER_POTION = "Hytemon:SuperPotion";
   public static final String REVIVE = "Hytemon:Revive";
+  public static final String POKEBALL_PROJECTILE = "Hytemon:PokeballProjectile";
+  public static final String GREATBALL_PROJECTILE = "Hytemon:GreatballProjectile";
+  public static final String ULTRABALL_PROJECTILE = "Hytemon:UltraballProjectile";
 
   private HytemonItems() {}
 }

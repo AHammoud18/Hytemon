@@ -1,5 +1,6 @@
 package com.hytemon.mod.capture;
 
+import com.hytemon.mod.HytemonItems;
 import com.hytemon.mod.HytemonPlugin;
 import com.hytemon.mod.battle.BattleManager;
 import com.hytemon.mod.player.TrainerData;
@@ -44,7 +45,7 @@ public class CaptureManager {
       return CaptureResult.CAPTURE_INTERRUPTED_BY_BATTLE;
     }
 
-    double chance = baseCaptureChance(target);
+    double chance = baseCaptureChance(target) * captureItemMultiplier(captureItem);
     double roll = ThreadLocalRandom.current().nextDouble();
     if (roll <= chance) {
       trainerData.addCapture(target);
@@ -65,10 +66,33 @@ public class CaptureManager {
     store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
   }
 
+  @Nonnull
+  public CaptureThrow buildThrowProfile(@Nonnull ItemStack captureItem) {
+    String itemId = captureItem.getItemId();
+    String projectileId = switch (itemId) {
+      case HytemonItems.GREATBALL -> HytemonItems.GREATBALL_PROJECTILE;
+      case HytemonItems.ULTRABALL -> HytemonItems.ULTRABALL_PROJECTILE;
+      default -> HytemonItems.POKEBALL_PROJECTILE;
+    };
+    float speed = itemId.equals(HytemonItems.ULTRABALL) ? 1.4f : 1.1f;
+    float arcHeight = itemId.equals(HytemonItems.POKEBALL) ? 0.45f : 0.35f;
+
+    return new CaptureThrow(itemId, projectileId, speed, arcHeight);
+  }
+
   private double baseCaptureChance(@Nonnull CaptureTarget target) {
     return switch (target.disposition()) {
       case ANIMAL -> 0.45;
       case MONSTER -> 0.2;
+    };
+  }
+
+  private double captureItemMultiplier(@Nonnull ItemStack captureItem) {
+    String itemId = captureItem.getItemId();
+    return switch (itemId) {
+      case HytemonItems.GREATBALL -> 1.4;
+      case HytemonItems.ULTRABALL -> 1.8;
+      default -> 1.0;
     };
   }
 
