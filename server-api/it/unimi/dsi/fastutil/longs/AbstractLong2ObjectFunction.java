@@ -1,0 +1,57 @@
+/*    */ package it.unimi.dsi.fastutil.longs;
+/*    */ 
+/*    */ import java.io.Serializable;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public abstract class AbstractLong2ObjectFunction<V>
+/*    */   implements Long2ObjectFunction<V>, Serializable
+/*    */ {
+/*    */   private static final long serialVersionUID = -4940583368468432370L;
+/*    */   protected V defRetValue;
+/*    */   
+/*    */   public void defaultReturnValue(V rv) {
+/* 44 */     this.defRetValue = rv;
+/*    */   }
+/*    */ 
+/*    */   
+/*    */   public V defaultReturnValue() {
+/* 49 */     return this.defRetValue;
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\Workspace\Hytale\Modding\TestMod\app\libs\HytaleServer.jar!\i\\unimi\dsi\fastutil\longs\AbstractLong2ObjectFunction.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
+ */

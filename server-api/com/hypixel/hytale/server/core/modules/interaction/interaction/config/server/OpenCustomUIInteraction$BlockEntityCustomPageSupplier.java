@@ -1,0 +1,17 @@
+package com.hypixel.hytale.server.core.modules.interaction.interaction.config.server;
+
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.entity.entities.player.pages.CustomUIPage;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+
+@FunctionalInterface
+public interface BlockEntityCustomPageSupplier {
+  CustomUIPage tryCreate(PlayerRef paramPlayerRef, Ref<ChunkStore> paramRef);
+}
+
+
+/* Location:              D:\Workspace\Hytale\Modding\TestMod\app\libs\HytaleServer.jar!\com\hypixel\hytale\server\core\modules\interaction\interaction\config\server\OpenCustomUIInteraction$BlockEntityCustomPageSupplier.class
+ * Java compiler version: 21 (65.0)
+ * JD-Core Version:       1.1.3
+ */

@@ -1,0 +1,919 @@
+/*     */ package com.google.gson.internal.bind.util;
+/*     */ 
+/*     */ import java.text.ParseException;
+/*     */ import java.text.ParsePosition;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.GregorianCalendar;
+/*     */ import java.util.Locale;
+/*     */ import java.util.TimeZone;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class ISO8601Utils
+/*     */ {
+/*     */   private static final String UTC_ID = "UTC";
+/*  54 */   private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone("UTC");
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static String format(Date date) {
+/*  69 */     return format(date, false, TIMEZONE_UTC);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static String format(Date date, boolean millis) {
+/*  80 */     return format(date, millis, TIMEZONE_UTC);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static String format(Date date, boolean millis, TimeZone tz) {
+/*  92 */     Calendar calendar = new GregorianCalendar(tz, Locale.US);
+/*  93 */     calendar.setTime(date);
+/*     */ 
+/*     */     
+/*  96 */     int capacity = "yyyy-MM-ddThh:mm:ss".length();
+/*  97 */     capacity += millis ? ".sss".length() : 0;
+/*  98 */     capacity += (tz.getRawOffset() == 0) ? "Z".length() : "+hh:mm".length();
+/*  99 */     StringBuilder formatted = new StringBuilder(capacity);
+/*     */     
+/* 101 */     padInt(formatted, calendar.get(1), "yyyy".length());
+/* 102 */     formatted.append('-');
+/* 103 */     padInt(formatted, calendar.get(2) + 1, "MM".length());
+/* 104 */     formatted.append('-');
+/* 105 */     padInt(formatted, calendar.get(5), "dd".length());
+/* 106 */     formatted.append('T');
+/* 107 */     padInt(formatted, calendar.get(11), "hh".length());
+/* 108 */     formatted.append(':');
+/* 109 */     padInt(formatted, calendar.get(12), "mm".length());
+/* 110 */     formatted.append(':');
+/* 111 */     padInt(formatted, calendar.get(13), "ss".length());
+/* 112 */     if (millis) {
+/* 113 */       formatted.append('.');
+/* 114 */       padInt(formatted, calendar.get(14), "sss".length());
+/*     */     } 
+/*     */     
+/* 117 */     int offset = tz.getOffset(calendar.getTimeInMillis());
+/* 118 */     if (offset != 0) {
+/* 119 */       int hours = Math.abs(offset / 60000 / 60);
+/* 120 */       int minutes = Math.abs(offset / 60000 % 60);
+/* 121 */       formatted.append((offset < 0) ? 45 : 43);
+/* 122 */       padInt(formatted, hours, "hh".length());
+/* 123 */       formatted.append(':');
+/* 124 */       padInt(formatted, minutes, "mm".length());
+/*     */     } else {
+/* 126 */       formatted.append('Z');
+/*     */     } 
+/*     */     
+/* 129 */     return formatted.toString();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static Date parse(String date, ParsePosition pos) throws ParseException {
+/*     */     // Byte code:
+/*     */     //   0: aconst_null
+/*     */     //   1: astore_2
+/*     */     //   2: aload_1
+/*     */     //   3: invokevirtual getIndex : ()I
+/*     */     //   6: istore_3
+/*     */     //   7: aload_0
+/*     */     //   8: iload_3
+/*     */     //   9: iinc #3, 4
+/*     */     //   12: iload_3
+/*     */     //   13: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   16: istore #4
+/*     */     //   18: aload_0
+/*     */     //   19: iload_3
+/*     */     //   20: bipush #45
+/*     */     //   22: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   25: ifeq -> 31
+/*     */     //   28: iinc #3, 1
+/*     */     //   31: aload_0
+/*     */     //   32: iload_3
+/*     */     //   33: iinc #3, 2
+/*     */     //   36: iload_3
+/*     */     //   37: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   40: istore #5
+/*     */     //   42: aload_0
+/*     */     //   43: iload_3
+/*     */     //   44: bipush #45
+/*     */     //   46: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   49: ifeq -> 55
+/*     */     //   52: iinc #3, 1
+/*     */     //   55: aload_0
+/*     */     //   56: iload_3
+/*     */     //   57: iinc #3, 2
+/*     */     //   60: iload_3
+/*     */     //   61: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   64: istore #6
+/*     */     //   66: iconst_0
+/*     */     //   67: istore #7
+/*     */     //   69: iconst_0
+/*     */     //   70: istore #8
+/*     */     //   72: iconst_0
+/*     */     //   73: istore #9
+/*     */     //   75: iconst_0
+/*     */     //   76: istore #10
+/*     */     //   78: aload_0
+/*     */     //   79: iload_3
+/*     */     //   80: bipush #84
+/*     */     //   82: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   85: istore #11
+/*     */     //   87: iload #11
+/*     */     //   89: ifne -> 134
+/*     */     //   92: aload_0
+/*     */     //   93: invokevirtual length : ()I
+/*     */     //   96: iload_3
+/*     */     //   97: if_icmpgt -> 134
+/*     */     //   100: new java/util/GregorianCalendar
+/*     */     //   103: dup
+/*     */     //   104: iload #4
+/*     */     //   106: iload #5
+/*     */     //   108: iconst_1
+/*     */     //   109: isub
+/*     */     //   110: iload #6
+/*     */     //   112: invokespecial <init> : (III)V
+/*     */     //   115: astore #12
+/*     */     //   117: aload #12
+/*     */     //   119: iconst_0
+/*     */     //   120: invokevirtual setLenient : (Z)V
+/*     */     //   123: aload_1
+/*     */     //   124: iload_3
+/*     */     //   125: invokevirtual setIndex : (I)V
+/*     */     //   128: aload #12
+/*     */     //   130: invokevirtual getTime : ()Ljava/util/Date;
+/*     */     //   133: areturn
+/*     */     //   134: iload #11
+/*     */     //   136: ifeq -> 355
+/*     */     //   139: aload_0
+/*     */     //   140: iinc #3, 1
+/*     */     //   143: iload_3
+/*     */     //   144: iinc #3, 2
+/*     */     //   147: iload_3
+/*     */     //   148: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   151: istore #7
+/*     */     //   153: aload_0
+/*     */     //   154: iload_3
+/*     */     //   155: bipush #58
+/*     */     //   157: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   160: ifeq -> 166
+/*     */     //   163: iinc #3, 1
+/*     */     //   166: aload_0
+/*     */     //   167: iload_3
+/*     */     //   168: iinc #3, 2
+/*     */     //   171: iload_3
+/*     */     //   172: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   175: istore #8
+/*     */     //   177: aload_0
+/*     */     //   178: iload_3
+/*     */     //   179: bipush #58
+/*     */     //   181: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   184: ifeq -> 190
+/*     */     //   187: iinc #3, 1
+/*     */     //   190: aload_0
+/*     */     //   191: invokevirtual length : ()I
+/*     */     //   194: iload_3
+/*     */     //   195: if_icmple -> 355
+/*     */     //   198: aload_0
+/*     */     //   199: iload_3
+/*     */     //   200: invokevirtual charAt : (I)C
+/*     */     //   203: istore #12
+/*     */     //   205: iload #12
+/*     */     //   207: bipush #90
+/*     */     //   209: if_icmpeq -> 355
+/*     */     //   212: iload #12
+/*     */     //   214: bipush #43
+/*     */     //   216: if_icmpeq -> 355
+/*     */     //   219: iload #12
+/*     */     //   221: bipush #45
+/*     */     //   223: if_icmpeq -> 355
+/*     */     //   226: aload_0
+/*     */     //   227: iload_3
+/*     */     //   228: iinc #3, 2
+/*     */     //   231: iload_3
+/*     */     //   232: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   235: istore #9
+/*     */     //   237: iload #9
+/*     */     //   239: bipush #59
+/*     */     //   241: if_icmple -> 255
+/*     */     //   244: iload #9
+/*     */     //   246: bipush #63
+/*     */     //   248: if_icmpge -> 255
+/*     */     //   251: bipush #59
+/*     */     //   253: istore #9
+/*     */     //   255: aload_0
+/*     */     //   256: iload_3
+/*     */     //   257: bipush #46
+/*     */     //   259: invokestatic checkOffset : (Ljava/lang/String;IC)Z
+/*     */     //   262: ifeq -> 355
+/*     */     //   265: iinc #3, 1
+/*     */     //   268: aload_0
+/*     */     //   269: iload_3
+/*     */     //   270: iconst_1
+/*     */     //   271: iadd
+/*     */     //   272: invokestatic indexOfNonDigit : (Ljava/lang/String;I)I
+/*     */     //   275: istore #13
+/*     */     //   277: iload #13
+/*     */     //   279: iload_3
+/*     */     //   280: iconst_3
+/*     */     //   281: iadd
+/*     */     //   282: invokestatic min : (II)I
+/*     */     //   285: istore #14
+/*     */     //   287: aload_0
+/*     */     //   288: iload_3
+/*     */     //   289: iload #14
+/*     */     //   291: invokestatic parseInt : (Ljava/lang/String;II)I
+/*     */     //   294: istore #15
+/*     */     //   296: iload #14
+/*     */     //   298: iload_3
+/*     */     //   299: isub
+/*     */     //   300: lookupswitch default -> 348, 1 -> 338, 2 -> 328
+/*     */     //   328: iload #15
+/*     */     //   330: bipush #10
+/*     */     //   332: imul
+/*     */     //   333: istore #10
+/*     */     //   335: goto -> 352
+/*     */     //   338: iload #15
+/*     */     //   340: bipush #100
+/*     */     //   342: imul
+/*     */     //   343: istore #10
+/*     */     //   345: goto -> 352
+/*     */     //   348: iload #15
+/*     */     //   350: istore #10
+/*     */     //   352: iload #13
+/*     */     //   354: istore_3
+/*     */     //   355: aload_0
+/*     */     //   356: invokevirtual length : ()I
+/*     */     //   359: iload_3
+/*     */     //   360: if_icmpgt -> 373
+/*     */     //   363: new java/lang/IllegalArgumentException
+/*     */     //   366: dup
+/*     */     //   367: ldc 'No time zone indicator'
+/*     */     //   369: invokespecial <init> : (Ljava/lang/String;)V
+/*     */     //   372: athrow
+/*     */     //   373: aconst_null
+/*     */     //   374: astore #12
+/*     */     //   376: aload_0
+/*     */     //   377: iload_3
+/*     */     //   378: invokevirtual charAt : (I)C
+/*     */     //   381: istore #13
+/*     */     //   383: iload #13
+/*     */     //   385: bipush #90
+/*     */     //   387: if_icmpne -> 401
+/*     */     //   390: getstatic com/google/gson/internal/bind/util/ISO8601Utils.TIMEZONE_UTC : Ljava/util/TimeZone;
+/*     */     //   393: astore #12
+/*     */     //   395: iinc #3, 1
+/*     */     //   398: goto -> 638
+/*     */     //   401: iload #13
+/*     */     //   403: bipush #43
+/*     */     //   405: if_icmpeq -> 415
+/*     */     //   408: iload #13
+/*     */     //   410: bipush #45
+/*     */     //   412: if_icmpne -> 605
+/*     */     //   415: aload_0
+/*     */     //   416: iload_3
+/*     */     //   417: invokevirtual substring : (I)Ljava/lang/String;
+/*     */     //   420: astore #14
+/*     */     //   422: aload #14
+/*     */     //   424: invokevirtual length : ()I
+/*     */     //   427: iconst_5
+/*     */     //   428: if_icmplt -> 436
+/*     */     //   431: aload #14
+/*     */     //   433: goto -> 456
+/*     */     //   436: new java/lang/StringBuilder
+/*     */     //   439: dup
+/*     */     //   440: invokespecial <init> : ()V
+/*     */     //   443: aload #14
+/*     */     //   445: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   448: ldc '00'
+/*     */     //   450: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   453: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   456: astore #14
+/*     */     //   458: iload_3
+/*     */     //   459: aload #14
+/*     */     //   461: invokevirtual length : ()I
+/*     */     //   464: iadd
+/*     */     //   465: istore_3
+/*     */     //   466: aload #14
+/*     */     //   468: ldc '+0000'
+/*     */     //   470: invokevirtual equals : (Ljava/lang/Object;)Z
+/*     */     //   473: ifne -> 486
+/*     */     //   476: aload #14
+/*     */     //   478: ldc '+00:00'
+/*     */     //   480: invokevirtual equals : (Ljava/lang/Object;)Z
+/*     */     //   483: ifeq -> 494
+/*     */     //   486: getstatic com/google/gson/internal/bind/util/ISO8601Utils.TIMEZONE_UTC : Ljava/util/TimeZone;
+/*     */     //   489: astore #12
+/*     */     //   491: goto -> 602
+/*     */     //   494: new java/lang/StringBuilder
+/*     */     //   497: dup
+/*     */     //   498: invokespecial <init> : ()V
+/*     */     //   501: ldc 'GMT'
+/*     */     //   503: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   506: aload #14
+/*     */     //   508: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   511: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   514: astore #15
+/*     */     //   516: aload #15
+/*     */     //   518: invokestatic getTimeZone : (Ljava/lang/String;)Ljava/util/TimeZone;
+/*     */     //   521: astore #12
+/*     */     //   523: aload #12
+/*     */     //   525: invokevirtual getID : ()Ljava/lang/String;
+/*     */     //   528: astore #16
+/*     */     //   530: aload #16
+/*     */     //   532: aload #15
+/*     */     //   534: invokevirtual equals : (Ljava/lang/Object;)Z
+/*     */     //   537: ifne -> 602
+/*     */     //   540: aload #16
+/*     */     //   542: ldc ':'
+/*     */     //   544: ldc ''
+/*     */     //   546: invokevirtual replace : (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+/*     */     //   549: astore #17
+/*     */     //   551: aload #17
+/*     */     //   553: aload #15
+/*     */     //   555: invokevirtual equals : (Ljava/lang/Object;)Z
+/*     */     //   558: ifne -> 602
+/*     */     //   561: new java/lang/IndexOutOfBoundsException
+/*     */     //   564: dup
+/*     */     //   565: new java/lang/StringBuilder
+/*     */     //   568: dup
+/*     */     //   569: invokespecial <init> : ()V
+/*     */     //   572: ldc 'Mismatching time zone indicator: '
+/*     */     //   574: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   577: aload #15
+/*     */     //   579: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   582: ldc ' given, resolves to '
+/*     */     //   584: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   587: aload #12
+/*     */     //   589: invokevirtual getID : ()Ljava/lang/String;
+/*     */     //   592: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   595: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   598: invokespecial <init> : (Ljava/lang/String;)V
+/*     */     //   601: athrow
+/*     */     //   602: goto -> 638
+/*     */     //   605: new java/lang/IndexOutOfBoundsException
+/*     */     //   608: dup
+/*     */     //   609: new java/lang/StringBuilder
+/*     */     //   612: dup
+/*     */     //   613: invokespecial <init> : ()V
+/*     */     //   616: ldc 'Invalid time zone indicator ''
+/*     */     //   618: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   621: iload #13
+/*     */     //   623: invokevirtual append : (C)Ljava/lang/StringBuilder;
+/*     */     //   626: ldc '''
+/*     */     //   628: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   631: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   634: invokespecial <init> : (Ljava/lang/String;)V
+/*     */     //   637: athrow
+/*     */     //   638: new java/util/GregorianCalendar
+/*     */     //   641: dup
+/*     */     //   642: aload #12
+/*     */     //   644: invokespecial <init> : (Ljava/util/TimeZone;)V
+/*     */     //   647: astore #14
+/*     */     //   649: aload #14
+/*     */     //   651: iconst_0
+/*     */     //   652: invokevirtual setLenient : (Z)V
+/*     */     //   655: aload #14
+/*     */     //   657: iconst_1
+/*     */     //   658: iload #4
+/*     */     //   660: invokevirtual set : (II)V
+/*     */     //   663: aload #14
+/*     */     //   665: iconst_2
+/*     */     //   666: iload #5
+/*     */     //   668: iconst_1
+/*     */     //   669: isub
+/*     */     //   670: invokevirtual set : (II)V
+/*     */     //   673: aload #14
+/*     */     //   675: iconst_5
+/*     */     //   676: iload #6
+/*     */     //   678: invokevirtual set : (II)V
+/*     */     //   681: aload #14
+/*     */     //   683: bipush #11
+/*     */     //   685: iload #7
+/*     */     //   687: invokevirtual set : (II)V
+/*     */     //   690: aload #14
+/*     */     //   692: bipush #12
+/*     */     //   694: iload #8
+/*     */     //   696: invokevirtual set : (II)V
+/*     */     //   699: aload #14
+/*     */     //   701: bipush #13
+/*     */     //   703: iload #9
+/*     */     //   705: invokevirtual set : (II)V
+/*     */     //   708: aload #14
+/*     */     //   710: bipush #14
+/*     */     //   712: iload #10
+/*     */     //   714: invokevirtual set : (II)V
+/*     */     //   717: aload_1
+/*     */     //   718: iload_3
+/*     */     //   719: invokevirtual setIndex : (I)V
+/*     */     //   722: aload #14
+/*     */     //   724: invokevirtual getTime : ()Ljava/util/Date;
+/*     */     //   727: areturn
+/*     */     //   728: astore_3
+/*     */     //   729: aload_3
+/*     */     //   730: astore_2
+/*     */     //   731: aload_0
+/*     */     //   732: ifnonnull -> 739
+/*     */     //   735: aconst_null
+/*     */     //   736: goto -> 763
+/*     */     //   739: new java/lang/StringBuilder
+/*     */     //   742: dup
+/*     */     //   743: invokespecial <init> : ()V
+/*     */     //   746: bipush #34
+/*     */     //   748: invokevirtual append : (C)Ljava/lang/StringBuilder;
+/*     */     //   751: aload_0
+/*     */     //   752: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   755: bipush #34
+/*     */     //   757: invokevirtual append : (C)Ljava/lang/StringBuilder;
+/*     */     //   760: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   763: astore_3
+/*     */     //   764: aload_2
+/*     */     //   765: invokevirtual getMessage : ()Ljava/lang/String;
+/*     */     //   768: astore #4
+/*     */     //   770: aload #4
+/*     */     //   772: ifnull -> 783
+/*     */     //   775: aload #4
+/*     */     //   777: invokevirtual isEmpty : ()Z
+/*     */     //   780: ifeq -> 815
+/*     */     //   783: new java/lang/StringBuilder
+/*     */     //   786: dup
+/*     */     //   787: invokespecial <init> : ()V
+/*     */     //   790: ldc '('
+/*     */     //   792: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   795: aload_2
+/*     */     //   796: invokevirtual getClass : ()Ljava/lang/Class;
+/*     */     //   799: invokevirtual getName : ()Ljava/lang/String;
+/*     */     //   802: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   805: ldc ')'
+/*     */     //   807: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   810: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   813: astore #4
+/*     */     //   815: new java/text/ParseException
+/*     */     //   818: dup
+/*     */     //   819: new java/lang/StringBuilder
+/*     */     //   822: dup
+/*     */     //   823: invokespecial <init> : ()V
+/*     */     //   826: ldc 'Failed to parse date ['
+/*     */     //   828: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   831: aload_3
+/*     */     //   832: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   835: ldc ']: '
+/*     */     //   837: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   840: aload #4
+/*     */     //   842: invokevirtual append : (Ljava/lang/String;)Ljava/lang/StringBuilder;
+/*     */     //   845: invokevirtual toString : ()Ljava/lang/String;
+/*     */     //   848: aload_1
+/*     */     //   849: invokevirtual getIndex : ()I
+/*     */     //   852: invokespecial <init> : (Ljava/lang/String;I)V
+/*     */     //   855: astore #5
+/*     */     //   857: aload #5
+/*     */     //   859: aload_2
+/*     */     //   860: invokevirtual initCause : (Ljava/lang/Throwable;)Ljava/lang/Throwable;
+/*     */     //   863: pop
+/*     */     //   864: aload #5
+/*     */     //   866: athrow
+/*     */     // Line number table:
+/*     */     //   Java source line number -> byte code offset
+/*     */     //   #148	-> 0
+/*     */     //   #150	-> 2
+/*     */     //   #153	-> 7
+/*     */     //   #154	-> 18
+/*     */     //   #155	-> 28
+/*     */     //   #159	-> 31
+/*     */     //   #160	-> 42
+/*     */     //   #161	-> 52
+/*     */     //   #165	-> 55
+/*     */     //   #168	-> 66
+/*     */     //   #169	-> 69
+/*     */     //   #170	-> 72
+/*     */     //   #173	-> 75
+/*     */     //   #176	-> 78
+/*     */     //   #178	-> 87
+/*     */     //   #179	-> 100
+/*     */     //   #180	-> 117
+/*     */     //   #182	-> 123
+/*     */     //   #183	-> 128
+/*     */     //   #186	-> 134
+/*     */     //   #189	-> 139
+/*     */     //   #190	-> 153
+/*     */     //   #191	-> 163
+/*     */     //   #194	-> 166
+/*     */     //   #195	-> 177
+/*     */     //   #196	-> 187
+/*     */     //   #199	-> 190
+/*     */     //   #200	-> 198
+/*     */     //   #201	-> 205
+/*     */     //   #202	-> 226
+/*     */     //   #203	-> 237
+/*     */     //   #204	-> 251
+/*     */     //   #207	-> 255
+/*     */     //   #208	-> 265
+/*     */     //   #209	-> 268
+/*     */     //   #210	-> 277
+/*     */     //   #211	-> 287
+/*     */     //   #213	-> 296
+/*     */     //   #215	-> 328
+/*     */     //   #216	-> 335
+/*     */     //   #218	-> 338
+/*     */     //   #219	-> 345
+/*     */     //   #221	-> 348
+/*     */     //   #223	-> 352
+/*     */     //   #230	-> 355
+/*     */     //   #231	-> 363
+/*     */     //   #234	-> 373
+/*     */     //   #235	-> 376
+/*     */     //   #237	-> 383
+/*     */     //   #238	-> 390
+/*     */     //   #239	-> 395
+/*     */     //   #240	-> 401
+/*     */     //   #241	-> 415
+/*     */     //   #245	-> 422
+/*     */     //   #247	-> 458
+/*     */     //   #249	-> 466
+/*     */     //   #250	-> 486
+/*     */     //   #256	-> 494
+/*     */     //   #259	-> 516
+/*     */     //   #261	-> 523
+/*     */     //   #262	-> 530
+/*     */     //   #268	-> 540
+/*     */     //   #269	-> 551
+/*     */     //   #270	-> 561
+/*     */     //   #274	-> 589
+/*     */     //   #278	-> 602
+/*     */     //   #279	-> 605
+/*     */     //   #283	-> 638
+/*     */     //   #284	-> 649
+/*     */     //   #285	-> 655
+/*     */     //   #286	-> 663
+/*     */     //   #287	-> 673
+/*     */     //   #288	-> 681
+/*     */     //   #289	-> 690
+/*     */     //   #290	-> 699
+/*     */     //   #291	-> 708
+/*     */     //   #293	-> 717
+/*     */     //   #294	-> 722
+/*     */     //   #297	-> 728
+/*     */     //   #298	-> 729
+/*     */     //   #300	-> 731
+/*     */     //   #301	-> 764
+/*     */     //   #302	-> 770
+/*     */     //   #303	-> 783
+/*     */     //   #305	-> 815
+/*     */     //   #306	-> 849
+/*     */     //   #307	-> 857
+/*     */     //   #308	-> 864
+/*     */     // Local variable table:
+/*     */     //   start	length	slot	name	descriptor
+/*     */     //   117	17	12	calendar	Ljava/util/Calendar;
+/*     */     //   277	78	13	endOffset	I
+/*     */     //   287	68	14	parseEndOffset	I
+/*     */     //   296	59	15	fraction	I
+/*     */     //   205	150	12	c	C
+/*     */     //   551	51	17	cleaned	Ljava/lang/String;
+/*     */     //   516	86	15	timezoneId	Ljava/lang/String;
+/*     */     //   530	72	16	act	Ljava/lang/String;
+/*     */     //   422	180	14	timezoneOffset	Ljava/lang/String;
+/*     */     //   7	721	3	offset	I
+/*     */     //   18	710	4	year	I
+/*     */     //   42	686	5	month	I
+/*     */     //   66	662	6	day	I
+/*     */     //   69	659	7	hour	I
+/*     */     //   72	656	8	minutes	I
+/*     */     //   75	653	9	seconds	I
+/*     */     //   78	650	10	milliseconds	I
+/*     */     //   87	641	11	hasT	Z
+/*     */     //   376	352	12	timezone	Ljava/util/TimeZone;
+/*     */     //   383	345	13	timezoneIndicator	C
+/*     */     //   649	79	14	calendar	Ljava/util/Calendar;
+/*     */     //   729	2	3	e	Ljava/lang/RuntimeException;
+/*     */     //   0	867	0	date	Ljava/lang/String;
+/*     */     //   0	867	1	pos	Ljava/text/ParsePosition;
+/*     */     //   2	865	2	fail	Ljava/lang/Exception;
+/*     */     //   764	103	3	input	Ljava/lang/String;
+/*     */     //   770	97	4	msg	Ljava/lang/String;
+/*     */     //   857	10	5	ex	Ljava/text/ParseException;
+/*     */     // Exception table:
+/*     */     //   from	to	target	type
+/*     */     //   2	133	728	java/lang/IndexOutOfBoundsException
+/*     */     //   2	133	728	java/lang/IllegalArgumentException
+/*     */     //   134	727	728	java/lang/IndexOutOfBoundsException
+/*     */     //   134	727	728	java/lang/IllegalArgumentException
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   private static boolean checkOffset(String value, int offset, char expected) {
+/* 320 */     return (offset < value.length() && value.charAt(offset) == expected);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   private static int parseInt(String value, int beginIndex, int endIndex) throws NumberFormatException {
+/* 334 */     if (beginIndex < 0 || endIndex > value.length() || beginIndex > endIndex) {
+/* 335 */       throw new NumberFormatException(value);
+/*     */     }
+/*     */     
+/* 338 */     int i = beginIndex;
+/* 339 */     int result = 0;
+/*     */     
+/* 341 */     if (i < endIndex) {
+/* 342 */       int digit = Character.digit(value.charAt(i++), 10);
+/* 343 */       if (digit < 0) {
+/* 344 */         throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
+/*     */       }
+/* 346 */       result = -digit;
+/*     */     } 
+/* 348 */     while (i < endIndex) {
+/* 349 */       int digit = Character.digit(value.charAt(i++), 10);
+/* 350 */       if (digit < 0) {
+/* 351 */         throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
+/*     */       }
+/* 353 */       result *= 10;
+/* 354 */       result -= digit;
+/*     */     } 
+/* 356 */     return -result;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   private static void padInt(StringBuilder buffer, int value, int length) {
+/* 367 */     String strValue = Integer.toString(value);
+/* 368 */     for (int i = length - strValue.length(); i > 0; i--) {
+/* 369 */       buffer.append('0');
+/*     */     }
+/* 371 */     buffer.append(strValue);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   private static int indexOfNonDigit(String string, int offset) {
+/* 378 */     for (int i = offset; i < string.length(); i++) {
+/* 379 */       char c = string.charAt(i);
+/* 380 */       if (c < '0' || c > '9') {
+/* 381 */         return i;
+/*     */       }
+/*     */     } 
+/* 384 */     return string.length();
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\Workspace\Hytale\Modding\TestMod\app\libs\HytaleServer.jar!\com\google\gson\internal\bin\\util\ISO8601Utils.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
+ */

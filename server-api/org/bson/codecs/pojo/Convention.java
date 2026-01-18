@@ -1,0 +1,11 @@
+package org.bson.codecs.pojo;
+
+public interface Convention {
+  void apply(ClassModelBuilder<?> paramClassModelBuilder);
+}
+
+
+/* Location:              D:\Workspace\Hytale\Modding\TestMod\app\libs\HytaleServer.jar!\org\bson\codecs\pojo\Convention.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
+ */
