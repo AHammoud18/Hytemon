@@ -1,0 +1,79 @@
+package com.hytemon.mod.capture;
+
+import com.hytemon.mod.HytemonPlugin;
+import com.hytemon.mod.battle.BattleManager;
+import com.hytemon.mod.player.TrainerData;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.Nonnull;
+
+public class CaptureManager {
+  private final HytemonPlugin plugin;
+  private final BattleManager battleManager;
+
+  public CaptureManager(@Nonnull HytemonPlugin plugin) {
+    this.plugin = plugin;
+    this.battleManager = plugin.getBattleManager();
+  }
+
+  @Nonnull
+  public CaptureResult attemptCapture(
+      @Nonnull Store<EntityStore> store,
+      @Nonnull Ref<EntityStore> playerRef,
+      @Nonnull PlayerRef player,
+      @Nonnull CaptureTarget target,
+      @Nonnull ItemStack captureItem
+  ) {
+    Objects.requireNonNull(target, "target");
+    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+
+    boolean alreadyCaptured = trainerData.getCaptures().stream()
+        .anyMatch(capture -> capture.entityId().equalsIgnoreCase(target.entityId()));
+    if (alreadyCaptured) {
+      return CaptureResult.TARGET_ALREADY_CAPTURED;
+    }
+
+    if (battleManager.shouldStartBattle(target)) {
+      battleManager.beginEncounter(store, playerRef, player, target);
+      return CaptureResult.CAPTURE_INTERRUPTED_BY_BATTLE;
+    }
+
+    double chance = baseCaptureChance(target);
+    double roll = ThreadLocalRandom.current().nextDouble();
+    if (roll <= chance) {
+      trainerData.addCapture(target);
+      return CaptureResult.SUCCESS;
+    }
+
+    return CaptureResult.FAILED;
+  }
+
+  public void throwCaptureItem(
+      @Nonnull Store<EntityStore> store,
+      @Nonnull Ref<EntityStore> playerRef,
+      @Nonnull ItemStack captureItem
+  ) {
+    // TODO: Wire this into the Interaction system to spawn a projectile and sync with clients.
+    // For example, register a RootInteraction asset that triggers ProjectileSpawn and
+    // use InteractionManager.startChain to drive the throw animation.
+    store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+  }
+
+  private double baseCaptureChance(@Nonnull CaptureTarget target) {
+    return switch (target.disposition()) {
+      case ANIMAL -> 0.45;
+      case MONSTER -> 0.2;
+    };
+  }
+
+  @Nonnull
+  public String sanitizeCaptureId(@Nonnull String id) {
+    return id.trim().toLowerCase(Locale.ROOT);
+  }
+}
