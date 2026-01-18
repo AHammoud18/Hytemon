@@ -2,6 +2,7 @@ package com.hytemon.mod.player;
 
 import com.hytemon.mod.HytemonPlugin;
 import com.hytemon.mod.battle.BattleEncounter;
+import com.hytemon.mod.battle.BattleState;
 import com.hytemon.mod.capture.CaptureTarget;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -53,7 +54,28 @@ public class TrainerData implements Component<EntityStore> {
   public Component<EntityStore> clone() {
     TrainerData clone = new TrainerData();
     clone.captures.addAll(this.captures);
-    clone.activeEncounter = this.activeEncounter;
+    if (this.activeEncounter != null) {
+      clone.activeEncounter = cloneEncounter(this.activeEncounter);
+    }
+    return clone;
+  }
+
+  @Nonnull
+  private BattleEncounter cloneEncounter(@Nonnull BattleEncounter encounter) {
+    BattleState state = new BattleState(
+        encounter.state().phase(),
+        encounter.state().turnNumber(),
+        encounter.state().pendingPlayerAction(),
+        encounter.state().pendingOpponentAction()
+    );
+
+    BattleEncounter clone = new BattleEncounter(
+        encounter.player(),
+        encounter.target(),
+        encounter.startedAtTick(),
+        state
+    );
+    clone.setLastResolvedAction(encounter.lastResolvedAction());
     return clone;
   }
 }
