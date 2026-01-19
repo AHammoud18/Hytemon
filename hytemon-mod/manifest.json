@@ -4,11 +4,14 @@
   "Version": "0.1.0",
   "Description": "Pokemon-style capture and battle prototype for Hytale.",
   "Main": "com.hytemon.mod.HytemonPlugin",
+  "DisabledByDefault": false,
+  "IncludesAssetPack": true,
   "ServerVersion": "*",
   "Dependencies": {
     "Hytale:EntityModule": "*",
     "Hytale:ItemModule": "*",
     "Hytale:InteractionModule": "*",
+    "Hytale:ProjectileModule": "*",
     "Hytale:NPC": "*",
     "Hytale:Shop": "*",
     "Hytale:NPCShop": "*"

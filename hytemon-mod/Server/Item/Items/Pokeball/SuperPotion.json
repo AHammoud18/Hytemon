@@ -1,0 +1,25 @@
+{
+  "TranslationProperties": {
+    "Name": "Super Potion",
+    "Description": "Restore a moderate amount of health."
+  },
+  "Categories": [
+    "Items.Potions"
+  ],
+  "Quality": "Common",
+  "ItemLevel": 1,
+  "PlayerAnimationsId": "Item",
+  "MaxStack": 16,
+  "Model": "Items/Pokeball/Pokeball.blockymodel",
+  "Texture": "Items/Pokeball/Great.png",
+  "Icon": "Icons/ItemsGenerated/Hytemon_SuperPotion.png",
+  "Tags": {
+    "Type": [
+      "Potion"
+    ],
+    "Family": [
+      "HytemonPotion"
+    ]
+  },
+  "ItemSoundSetId": "ISS_Default"
+}

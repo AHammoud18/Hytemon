@@ -44,9 +44,8 @@ public class HytemonBattleCommand extends AbstractPlayerCommand {
   );
 
   public HytemonBattleCommand(@Nonnull HytemonPlugin plugin) {
-    super("Start or end a Hytemon battle");
+    super("battle", "Start or end a Hytemon battle");
     this.plugin = plugin;
-    addAliases(new String[] { "battle" });
   }
 
   @Override

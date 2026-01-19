@@ -1,0 +1,13 @@
+{
+  "Type": "hytemon_ball_throw",
+  "Config": "Projectile_Config_Hytemon_Ultraball",
+  "Effects": {
+    "ItemAnimationId": "Throw",
+    "WorldSoundEventId": "SFX_Unarmed_Swing"
+  },
+  "RunTime": 0.167,
+  "Next": {
+    "Type": "ModifyInventory",
+    "AdjustHeldItemQuantity": -1
+  }
+}

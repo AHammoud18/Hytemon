@@ -3,8 +3,8 @@ package com.hytemon.mod.battle;
 import com.hytemon.mod.HytemonPlugin;
 import com.hytemon.mod.capture.CaptureTarget;
 import com.hytemon.mod.player.TrainerData;
+import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
@@ -21,12 +21,15 @@ public class BattleManager {
   }
 
   public void beginEncounter(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef,
       @Nonnull PlayerRef player,
       @Nonnull CaptureTarget target
   ) {
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
     if (trainerData.isInBattle()) {
       return;
     }
@@ -37,19 +40,25 @@ public class BattleManager {
   }
 
   public void endEncounter(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef
   ) {
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
     trainerData.clearEncounter();
   }
 
   public void queuePlayerAction(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef,
       @Nonnull BattleAction action
   ) {
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
     BattleEncounter encounter = trainerData.getActiveEncounter();
     if (encounter == null) {
       return;
@@ -63,11 +72,14 @@ public class BattleManager {
   }
 
   public void queueOpponentAction(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef,
       @Nonnull BattleAction action
   ) {
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
     BattleEncounter encounter = trainerData.getActiveEncounter();
     if (encounter == null) {
       return;
@@ -81,10 +93,13 @@ public class BattleManager {
   }
 
   public void resolveTurn(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef
   ) {
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
     BattleEncounter encounter = trainerData.getActiveEncounter();
     if (encounter == null) {
       return;

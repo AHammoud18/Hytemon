@@ -1,0 +1,30 @@
+{
+  "Model": "Rubble_Stone",
+  "SpawnRotationOffset": {
+    "Pitch": 10.0,
+    "Yaw": 1,
+    "Roll": 15
+  },
+  "Physics": {
+    "Type": "Standard",
+    "Gravity": 15,
+    "TerminalVelocityAir": 50,
+    "TerminalVelocityWater": 15,
+    "RotationMode": "VelocityRoll",
+    "Bounciness": 0.0,
+    "BounceCount": 0,
+    "AllowRolling": false,
+    "RollingFrictionFactor": 0.0,
+    "SticksVertically": false
+  },
+  "LaunchForce": 22,
+  "SpawnOffset": {
+    "X": 0.3,
+    "Y": 0.1,
+    "Z": 0.0
+  },
+  "Interactions": {
+    "ProjectileHit": "Hytemon_Pokeball_Projectile_Hit",
+    "ProjectileMiss": "Hytemon_Pokeball_Projectile_Miss"
+  }
+}

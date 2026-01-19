@@ -4,8 +4,8 @@ import com.hytemon.mod.HytemonItems;
 import com.hytemon.mod.HytemonPlugin;
 import com.hytemon.mod.battle.BattleManager;
 import com.hytemon.mod.player.TrainerData;
+import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -25,23 +25,20 @@ public class CaptureManager {
 
   @Nonnull
   public CaptureResult attemptCapture(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef,
       @Nonnull PlayerRef player,
       @Nonnull CaptureTarget target,
       @Nonnull ItemStack captureItem
   ) {
     Objects.requireNonNull(target, "target");
-    TrainerData trainerData = store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
-
-    boolean alreadyCaptured = trainerData.getCaptures().stream()
-        .anyMatch(capture -> capture.entityId().equalsIgnoreCase(target.entityId()));
-    if (alreadyCaptured) {
-      return CaptureResult.TARGET_ALREADY_CAPTURED;
-    }
+    TrainerData trainerData = componentAccessor.ensureAndGetComponent(
+        playerRef,
+        TrainerData.getComponentType()
+    );
 
     if (battleManager.shouldStartBattle(target)) {
-      battleManager.beginEncounter(store, playerRef, player, target);
+      battleManager.beginEncounter(componentAccessor, playerRef, player, target);
       return CaptureResult.CAPTURE_INTERRUPTED_BY_BATTLE;
     }
 
@@ -56,14 +53,14 @@ public class CaptureManager {
   }
 
   public void throwCaptureItem(
-      @Nonnull Store<EntityStore> store,
+      @Nonnull ComponentAccessor<EntityStore> componentAccessor,
       @Nonnull Ref<EntityStore> playerRef,
       @Nonnull ItemStack captureItem
   ) {
     // TODO: Wire this into the Interaction system to spawn a projectile and sync with clients.
     // For example, register a RootInteraction asset that triggers ProjectileSpawn and
     // use InteractionManager.startChain to drive the throw animation.
-    store.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
+    componentAccessor.ensureAndGetComponent(playerRef, TrainerData.getComponentType());
   }
 
   @Nonnull

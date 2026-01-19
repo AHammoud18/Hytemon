@@ -1,0 +1,25 @@
+{
+  "TranslationProperties": {
+    "Name": "Revive",
+    "Description": "Restore a downed Hytemon."
+  },
+  "Categories": [
+    "Items.Potions"
+  ],
+  "Quality": "Common",
+  "ItemLevel": 1,
+  "PlayerAnimationsId": "Item",
+  "MaxStack": 16,
+  "Model": "Items/Pokeball/Pokeball.blockymodel",
+  "Texture": "Items/Pokeball/Ultra.png",
+  "Icon": "Icons/ItemsGenerated/Hytemon_Revive.png",
+  "Tags": {
+    "Type": [
+      "Potion"
+    ],
+    "Family": [
+      "HytemonPotion"
+    ]
+  },
+  "ItemSoundSetId": "ISS_Default"
+}

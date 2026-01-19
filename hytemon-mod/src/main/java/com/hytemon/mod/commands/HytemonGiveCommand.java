@@ -12,7 +12,9 @@ import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredAr
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgumentType;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -39,9 +41,8 @@ public class HytemonGiveCommand extends AbstractPlayerCommand {
   );
 
   public HytemonGiveCommand(@Nonnull HytemonPlugin plugin) {
-    super("Give Hytemon items to yourself");
+    super("give", "Give Hytemon items to yourself");
     this.plugin = plugin;
-    addAliases(new String[] { "give" });
   }
 
   @Override
@@ -64,11 +65,16 @@ public class HytemonGiveCommand extends AbstractPlayerCommand {
     ItemStack stack = new ItemStack(itemId, quantity);
     store.ensureAndGetComponent(ref, TrainerData.getComponentType());
 
-    // TODO: Insert the stack into the player's inventory once the inventory API is wired.
-    // Example approach: LivingEntity entity = (LivingEntity) store.getComponent(ref, LivingEntity.getComponentType());
-    // entity.getInventory().getCombinedHotbarFirst().addItemStacks(List.of(stack));
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) {
+      context.sender().sendMessage(Message.raw("Unable to grant item: player component missing."));
+      return;
+    }
 
-    context.sender().sendMessage(Message.raw("Queued item grant: " + itemId + " x" + quantity));
+    ItemContainer inventory = player.getInventory().getCombinedHotbarFirst();
+    inventory.addItemStack(stack);
+
+    context.sender().sendMessage(Message.raw("Granted item: " + itemId + " x" + quantity));
   }
 
   @Nullable

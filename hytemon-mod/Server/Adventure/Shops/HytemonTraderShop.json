@@ -1,0 +1,35 @@
+{
+  "Id": "HytemonTraderShop",
+  "Content": [
+    {
+      "Type": "ShopElement",
+      "DisplayNameKey": "hytemon.shop.pokeball",
+      "DescriptionKey": "hytemon.shop.pokeball.desc",
+      "Interactions": [
+        {
+          "Type": "GiveItemInteraction",
+          "ItemId": "Pokeball",
+          "Quantity": 1
+        }
+      ],
+      "Requirements": [],
+      "Cost": 10,
+      "Icon": "Icons/Items/Hytemon/Pokeball.png"
+    },
+    {
+      "Type": "ShopElement",
+      "DisplayNameKey": "hytemon.shop.potion",
+      "DescriptionKey": "hytemon.shop.potion.desc",
+      "Interactions": [
+        {
+          "Type": "GiveItemInteraction",
+          "ItemId": "Potion",
+          "Quantity": 1
+        }
+      ],
+      "Requirements": [],
+      "Cost": 20,
+      "Icon": "Icons/Items/Hytemon/Potion.png"
+    }
+  ]
+}

@@ -21,9 +21,8 @@ public class HytemonSpawnTraderCommand extends AbstractPlayerCommand {
   private final HytemonPlugin plugin;
 
   public HytemonSpawnTraderCommand(@Nonnull HytemonPlugin plugin) {
-    super("Spawn a Hytemon trader NPC");
+    super("spawntrader", "Spawn a Hytemon trader NPC");
     this.plugin = plugin;
-    addAliases(new String[] { "spawntrader" });
   }
 
   @Override

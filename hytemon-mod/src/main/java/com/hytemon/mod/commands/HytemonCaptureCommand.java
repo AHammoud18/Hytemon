@@ -47,9 +47,8 @@ public class HytemonCaptureCommand extends AbstractPlayerCommand {
   );
 
   public HytemonCaptureCommand(@Nonnull HytemonPlugin plugin) {
-    super("Simulate a capture attempt");
+    super("capture", "Simulate a capture attempt");
     this.plugin = plugin;
-    addAliases(new String[] { "capture" });
   }
 
   @Override

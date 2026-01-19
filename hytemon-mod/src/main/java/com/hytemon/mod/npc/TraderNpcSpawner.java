@@ -13,8 +13,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TraderNpcSpawner {
-  public static final String TRADER_ROLE_ID = "Hytemon:Trader";
-  public static final String TRADER_SHOP_ID = "Hytemon:TraderShop";
+  public static final String TRADER_ROLE_ID = "Trader";
+  public static final String TRADER_SHOP_ID = "HytemonTraderShop";
 
   private final HytemonPlugin plugin;
 

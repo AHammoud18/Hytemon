@@ -1,0 +1,28 @@
+{
+  "TranslationProperties": {
+    "Name": "Pokeball",
+    "Description": "Capture item for Hytemon."
+  },
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "Quality": "Common",
+  "ItemLevel": 1,
+  "PlayerAnimationsId": "Item",
+  "MaxStack": 16,
+  "Model": "Items/Pokeball/Pokeball.blockymodel",
+  "Texture": "Items/Pokeball/Reg.png",
+  "Icon": "Icons/ItemsGenerated/Hytemon_Pokeball.png",
+  "Interactions": {
+    "Secondary": "Hytemon_Capture_Throw_Pokeball"
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "HytemonBall"
+    ]
+  },
+  "ItemSoundSetId": "ISS_Default"
+}

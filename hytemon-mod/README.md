@@ -26,7 +26,7 @@ The implementation is intentionally lightweight so you can connect it to Hytaleâ
   - It is designed to be extended with turn order, moves, effects, and UI.
 
 ### Trader NPC
-- `TraderNpcSpawner` calls `NPCPlugin.spawnNPC(...)` using the role id `Hytemon:Trader`.
+- `TraderNpcSpawner` calls `NPCPlugin.spawnNPC(...)` using the role id `Trader`.
 - `assets/Server/Adventure/Shops/HytemonTraderShop.json` defines a simple shop with Pokeballs and Potions.
 
 ### Command helpers
@@ -59,12 +59,12 @@ The `BattleState` class is already structured to track phase transitions (`INTRO
 `OPPONENT_COMMAND`, `RESOLVE_TURN`) and to queue battle actions.
 
 ## Trader NPC Setup
-The command spawns an NPC role called `Hytemon:Trader`. You must create that NPC role asset (via the NPC Editor or a JSON asset) and wire it to open the shop.
+The command spawns an NPC role called `Trader`. You must create that NPC role asset (via the NPC Editor or a JSON asset) and wire it to open the shop.
 
 Suggested NPC role configuration steps:
 
-1. Create a role named `Hytemon:Trader`.
-2. Add the **OpenShop** action with `ShopId = Hytemon:TraderShop`.
+1. Create a role named `Trader`.
+2. Add the **OpenShop** action with `ShopId = HytemonTraderShop`.
 3. Ensure the role uses a valid model and idle behavior.
 
 The provided shop asset lives at:
@@ -79,10 +79,10 @@ You can extend it with additional `ShopElement` entries for potions, better ball
 To fully test the mod in-game, add the following assets to your pack:
 
 - Item definitions + models/textures for:
-  - `Hytemon:Pokeball`, `Hytemon:Greatball`, `Hytemon:Ultraball`
-  - `Hytemon:Potion`, `Hytemon:SuperPotion`, `Hytemon:Revive`
+  - `Pokeball`, `Greatball`, `Ultraball`
+  - `Potion`, `SuperPotion`, `Revive`
 - Optional projectile assets for throws:
-  - `Hytemon:PokeballProjectile`, `Hytemon:GreatballProjectile`, `Hytemon:UltraballProjectile`
+  - `PokeballProjectile`, `GreatballProjectile`, `UltraballProjectile`
 - Item icons referenced by the shop:
   - `Icons/Items/Hytemon/Pokeball.png`, `Icons/Items/Hytemon/Potion.png`
 
